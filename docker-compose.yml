@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+
+  web:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    image: urlcut_web:latest
+    container_name: urlcut-web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./urlcut:/home/django/app   # bind mount for development
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=urlcut_db
+      - DB_USER=urlcut_user
+      - DB_PASS=testpass123
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      - DJANGO_SUPERUSER_PASS=testpass123
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14-alpine
+    container_name: "urlcut-db"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=urlcut_db
+      - POSTGRES_USER=urlcut_user
+      - POSTGRES_PASSWORD=testpass123
+
+volumes:
+  postgres_data:
