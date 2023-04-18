@@ -66,13 +66,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = 'user'
 
 
-class ActiveMappingManager(models.Manager):
-    """
-    Manager pre-filtering active mappings.
-    """
-    def get_queryset(self):
-        return super().get_queryset().filter(
+class MappingQuerySet(models.QuerySet):
+    """Mappings custom queryset."""
+
+    def active(self):
+        return self.filter(
             Q(expiry_date__isnull=True) | Q(expiry_date__gt=timezone.now())
+        )
+
+    def expired(self):
+        return self.filter(
+            expiry_date__lte=timezone.now()
         )
 
 
@@ -97,8 +101,7 @@ class Mapping(models.Model):
     expiry_date = models.DateTimeField(
         blank=True, null=True, verbose_name=_('Expiry date'))
 
-    objects = models.Manager()
-    actives = ActiveMappingManager()
+    objects = MappingQuerySet.as_manager()
 
     class Meta:
         db_table = 'mapping'

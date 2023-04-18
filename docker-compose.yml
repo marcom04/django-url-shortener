@@ -13,27 +13,51 @@ services:
       - ./urlcut:/home/django/app   # bind mount for development
     ports:
       - "8000:8000"
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME=urlcut_db
-      - DB_USER=urlcut_user
-      - DB_PASS=testpass123
-      - DJANGO_SUPERUSER_EMAIL=admin@example.com
-      - DJANGO_SUPERUSER_PASS=testpass123
+    env_file:
+      - ./compose/django/.env
     depends_on:
       - db
 
   db:
     image: postgres:14-alpine
-    container_name: "urlcut-db"
-
+    container_name: urlcut-db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=urlcut_db
       - POSTGRES_USER=urlcut_user
       - POSTGRES_PASSWORD=testpass123
+
+  rabbitmq:
+    image: rabbitmq:alpine
+    container_name: urlcut-rabbitmq
+    ports:
+      - "5672:5672"
+    restart: always
+
+  worker:
+    image: urlcut_web:latest
+    container_name: urlcut-worker
+    command: celery -A urlcut worker -l INFO
+    volumes:
+      - ./urlcut:/home/django/app
+    env_file:
+      - ./compose/django/.env
+    depends_on:
+      - web
+      - rabbitmq
+
+  scheduler:
+    image: urlcut_web:latest
+    container_name: urlcut-scheduler
+    command: celery -A urlcut beat -l INFO
+    volumes:
+      - ./urlcut:/home/django/app
+    env_file:
+      - ./compose/django/.env
+    depends_on:
+      - web
+      - rabbitmq
 
 volumes:
   postgres_data:

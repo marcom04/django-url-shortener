@@ -40,6 +40,6 @@ class ForwardToTargetView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         key = kwargs.get('key')
-        mapping = get_object_or_404(Mapping.actives, key=key)
+        mapping = get_object_or_404(Mapping.objects.active(), key=key)
         mapping.increment_visits()
         return mapping.target

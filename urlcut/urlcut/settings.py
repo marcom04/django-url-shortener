@@ -17,7 +17,6 @@ from django.urls import reverse_lazy
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -28,7 +27,6 @@ SECRET_KEY = 'django-insecure-&dr5^i1*zm5t8ef-1a3s%8x=cjci9jg_i=^4$6#s#=99az1hce
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -80,7 +78,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'urlcut.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -94,7 +91,6 @@ DATABASES = {
         'PORT': int(os.environ.get('DB_PORT')),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -114,7 +110,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -125,7 +120,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -207,3 +201,21 @@ SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True
 }
 
+CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672'
+
+CELERY_BEAT_SCHEDULE = {
+    'say-hi-every-30-seconds': {
+        'task': 'apps.mappings.tasks.say_hi',
+        'schedule': 30.0,
+        'options': {
+            'expires': 15.0,
+        },
+    },
+    'cleanup-expired-mappings': {
+        'task': 'apps.mappings.tasks.cleanup_mappings',
+        'schedule': 60.0,
+    }
+}
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = BASE_DIR / "sent_messages"

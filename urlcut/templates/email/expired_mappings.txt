@@ -1,0 +1,10 @@
+Hi,
+
+We have deleted the following {{ mappings.count }} URLs created by you:
+
+{% for mapping in mappings %}
+- Key '{{ mapping.key }}' for URL {{ mapping.target }}. Clicks collected: {{ mapping.visits }}
+{% endfor %}
+
+Regards,
+The urlcut Team
