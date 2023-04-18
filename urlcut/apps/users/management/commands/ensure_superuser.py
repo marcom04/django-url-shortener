@@ -15,6 +15,6 @@ class Command(BaseCommand):
         if not User.objects.filter(email=options['email']).exists():
             User.objects.create_superuser(email=options['email'],
                                           password=options['password'])
-            print("Superuser created.")
+            self.stdout.write(self.style.SUCCESS("Superuser created."))
         else:
-            print(f"Superuser '{options['email']}' found on DB: no operations done.")
+            self.stdout.write(f"Superuser '%s' found on DB: no operations done." % options['email'])

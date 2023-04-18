@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'drf_spectacular',
     'widget_tweaks',
     'apps.core',
     'apps.users',
@@ -174,9 +177,33 @@ LOGGING = {
             'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
             'propagate': True
         },
-        'areg': {
+        'urlcut': {
             'handlers': ['console'],
             'level': os.environ.get('APP_LOG_LEVEL', 'DEBUG'),
         },
     }
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.TokenAuthentication',),
+    # 'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'urlcut API',
+    'DESCRIPTION': 'REST API for the urlcut application',
+    'VERSION': '1.0.0',
+    'CAMELIZE_NAMES': True,
+    'SERVE_INCLUDE_SCHEMA': True,
+    'SWAGGER_UI_SETTINGS': {
+        "defaultModelsExpandDepth": -1,
+        'syntaxHighlight.activate': True,
+        'syntaxHighlight.theme': 'monokai',
+    },
+    # OTHER SETTINGS
+    'COMPONENT_SPLIT_REQUEST': True
+}
+

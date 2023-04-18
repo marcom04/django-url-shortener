@@ -1,11 +1,31 @@
+import secrets
+import string
+
 from django.db import models
+from django.db.models import (
+    F,
+    Q,
+)
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.models import (
-    AbstractUser,
     BaseUserManager,
+    AbstractBaseUser,
+    PermissionsMixin,
 )
+
+
+def create_random_key(length=settings.DEFAULT_KEY_LEN):
+    chars = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(chars) for _ in range(length))
+
+
+def create_unique_random_key(length=settings.DEFAULT_KEY_LEN):
+    new_key = create_random_key(length)
+    while Mapping.objects.filter(key=new_key).exists():
+        new_key = create_random_key(length)
+    return new_key
 
 
 class UserManager(BaseUserManager):
@@ -31,19 +51,29 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractUser):
-    """
-    A user in the system, having the e-mail as username.
-    """
+class User(AbstractBaseUser, PermissionsMixin):
+    """User in the system."""
     email = models.EmailField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
 
-    REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
 
     class Meta:
         db_table = 'user'
+
+
+class ActiveMappingManager(models.Manager):
+    """
+    Manager pre-filtering active mappings.
+    """
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            Q(expiry_date__isnull=True) | Q(expiry_date__gt=timezone.now())
+        )
 
 
 class Mapping(models.Model):
@@ -67,6 +97,9 @@ class Mapping(models.Model):
     expiry_date = models.DateTimeField(
         blank=True, null=True, verbose_name=_('Expiry date'))
 
+    objects = models.Manager()
+    actives = ActiveMappingManager()
+
     class Meta:
         db_table = 'mapping'
 
@@ -77,6 +110,12 @@ class Mapping(models.Model):
     def __str__(self):
         return self.key
 
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = create_unique_random_key()
+        super().save(*args, **kwargs)
+
     def increment_visits(self):
-        # TODO: increment visits field using F() to avoid race conditions
-        pass
+        # increment visits field using F() to avoid race conditions
+        self.visits = F('visits') + 1
+        self.save()

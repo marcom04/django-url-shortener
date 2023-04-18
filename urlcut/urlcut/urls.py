@@ -21,4 +21,10 @@ from django.urls import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('account/', include('django.contrib.auth.urls')),
+
+    # REST API URLs
+    path('api/v1/', include('api.urls', namespace='api')),
+
+    path('', include('apps.mappings.urls')),
 ]

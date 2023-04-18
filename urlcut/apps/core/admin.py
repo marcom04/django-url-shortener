@@ -12,15 +12,9 @@ from apps.core.models import (
 class UserAdmin(BaseUserAdmin):
     """Define the admin pages for users."""
     ordering = ['id']
-    list_display = ['email', 'last_name', 'first_name', 'is_active', 'is_staff']
+    list_display = ['email', 'name', 'is_active', 'is_staff']
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (
-            _('Name'),
-            {
-                'fields': ('first_name', 'last_name')
-            }
-        ),
         (
             _('Permissions'),
             {
@@ -39,7 +33,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': (
-                'email', 'password1', 'password2', 'first_name', 'last_name',
+                'email', 'password1', 'password2', 'name',
                 'is_active', 'is_staff', 'is_superuser'
             )
         }),
