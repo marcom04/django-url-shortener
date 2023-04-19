@@ -42,4 +42,4 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(Mapping)
 class MappingAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['key', 'target']

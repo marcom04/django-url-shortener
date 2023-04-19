@@ -25,7 +25,6 @@ def create_mapping(user, **params):
     """Create and return a test mapping."""
     defaults = {
         'target': 'https://www.google.com',
-        'key': 'aaaaaa',
         'expiry_date': None,
     }
     defaults.update(params)

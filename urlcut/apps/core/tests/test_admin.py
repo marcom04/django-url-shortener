@@ -6,6 +6,8 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import Client
 
+from apps.core.models import Mapping
+
 
 class AdminSiteTests(TestCase):
     """Tests for Django admin."""
@@ -22,6 +24,10 @@ class AdminSiteTests(TestCase):
             email='user@example.com',
             password='testpass123',
             name='Test User'
+        )
+        self.mapping = Mapping.objects.create(
+            user=self.user,
+            target='http://www.example.com'
         )
 
     def test_user_list(self):
@@ -45,3 +51,11 @@ class AdminSiteTests(TestCase):
         res = self.client.get(url)
 
         self.assertEqual(res.status_code, 200)
+
+    def test_mapping_list(self):
+        """Test that mappings are listed on page."""
+        url = reverse('admin:core_mapping_changelist')
+        res = self.client.get(url)
+
+        self.assertContains(res, self.mapping.target)
+        self.assertContains(res, self.mapping.key)
