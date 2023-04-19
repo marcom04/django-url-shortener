@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from apps.core.models import Mapping
 
@@ -46,3 +47,18 @@ class MappingViewTests(TestCase):
 
         res = self.client.get(forward_target_url(mapping.key))
         self.assertRedirects(res, mapping.target, fetch_redirect_response=False)
+
+    def test_increment_visits_after_forward(self):
+        """Test that a forward increments the visits count."""
+        mapping = create_mapping(self.user)
+
+        self.client.get(forward_target_url(mapping.key))
+        mapping.refresh_from_db(fields=['visits'])
+        self.assertEqual(mapping.visits, 1)
+
+    def test_forward_to_expired_target(self):
+        """Test that visiting an expired mapping does not work."""
+        mapping = create_mapping(self.user, expiry_date=timezone.now())
+
+        res = self.client.get(forward_target_url(mapping.key))
+        self.assertEqual(res.status_code, 404)
