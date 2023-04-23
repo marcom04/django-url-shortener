@@ -40,4 +40,5 @@ def cleanup_mappings():
 
     count, _ = all_expired.delete()
     logger.info(f"Deleted {count} expired mappings.")
+    return count
 

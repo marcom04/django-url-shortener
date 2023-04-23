@@ -1,6 +1,7 @@
 """
 Test mappings.
 """
+from datetime import timedelta
 
 from django.test import TestCase
 from django.test.client import Client
@@ -9,6 +10,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from apps.core.models import Mapping
+from apps.mappings.tasks import cleanup_mappings
 
 
 def forward_target_url(key):
@@ -62,6 +64,21 @@ class MappingViewTests(TestCase):
         res = self.client.get(forward_target_url(mapping.key))
         self.assertEqual(res.status_code, 404)
 
-    # TODO: test task delete expired mappings
-    # Test 1: test that the task is called with correct parameters
-    # Test 2: test the task as a normal function by calling it
+    def test_cleanup_mappings(self):
+        """Test the cleanup mappings task deletes expired mappings."""
+        create_mapping(self.user, expiry_date=timezone.now())
+
+        deleted = cleanup_mappings()
+        self.assertEqual(deleted, 1)
+        self.assertEqual(Mapping.objects.count(), 0)
+
+    def test_cleanup_only_expired_mappings(self):
+        """Test the cleanup mappings tasks deletes only expired mappings."""
+        create_mapping(self.user)
+        create_mapping(self.user, expiry_date=timezone.now() + timedelta(days=2))
+        expired = create_mapping(self.user, expiry_date=timezone.now())
+
+        deleted = cleanup_mappings()
+        self.assertEqual(deleted, 1)
+        self.assertEqual(Mapping.objects.count(), 2)
+        self.assertFalse(Mapping.objects.filter(id=expired.id).exists())
