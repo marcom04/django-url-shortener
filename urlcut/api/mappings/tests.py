@@ -53,7 +53,7 @@ class PrivateUserApiTest(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_create_mapping_success(self):
-        """Test successful creation of mapping without expiry date."""
+        """Test successful creation of mapping without expiry date as parameter."""
         payload = {
             'target': 'https://www.google.com'
         }
@@ -64,6 +64,19 @@ class PrivateUserApiTest(TestCase):
         mapping = Mapping.objects.first()
         self.assertEqual(mapping.target, payload['target'])
         self.assertEqual(mapping.user, self.user)
+        self.assertTrue(mapping.is_active)
+
+    def test_create_mapping_with_empty_expiry_date(self):
+        """Test successful creation of mapping passing empty expiry date."""
+        payload = {
+            'target': 'https://www.google.com',
+            'expiry_date': ''
+        }
+        res = self.client.post(CREATE_MAPPING_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        mapping = Mapping.objects.first()
+        self.assertIsNone(mapping.expiry_date)
+        self.assertTrue(mapping.is_active)
 
     def test_create_mapping_with_valid_expiry_date(self):
         """Test successful creation of mapping with expiry date."""

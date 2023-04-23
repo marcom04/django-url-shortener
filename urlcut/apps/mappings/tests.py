@@ -61,3 +61,7 @@ class MappingViewTests(TestCase):
 
         res = self.client.get(forward_target_url(mapping.key))
         self.assertEqual(res.status_code, 404)
+
+    # TODO: test task delete expired mappings
+    # Test 1: test that the task is called with correct parameters
+    # Test 2: test the task as a normal function by calling it

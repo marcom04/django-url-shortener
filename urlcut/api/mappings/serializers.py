@@ -19,7 +19,7 @@ class CreateMappingSerializer(serializers.ModelSerializer):
         return ret
 
     def validate(self, attrs):
-        if 'expiry_date' in attrs and attrs['expiry_date'] <= timezone.now():
+        if 'expiry_date' in attrs and attrs['expiry_date'] is not None and attrs['expiry_date'] <= timezone.now():
             raise serializers.ValidationError({
                 'expiry_date': _('Expiry date cannot be in the past')
             })

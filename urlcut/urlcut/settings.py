@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
+
+from celery.schedules import crontab
 from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'drf_spectacular',
     'widget_tweaks',
     'apps.core',
@@ -180,8 +183,7 @@ LOGGING = {
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.TokenAuthentication',),
-    # 'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
 }
@@ -201,19 +203,16 @@ SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True
 }
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),
+}
+
 CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672'
 
 CELERY_BEAT_SCHEDULE = {
-    'say-hi-every-30-seconds': {
-        'task': 'apps.mappings.tasks.say_hi',
-        'schedule': 30.0,
-        'options': {
-            'expires': 15.0,
-        },
-    },
     'cleanup-expired-mappings': {
         'task': 'apps.mappings.tasks.cleanup_mappings',
-        'schedule': 60.0,
+        'schedule': crontab(minute=0, hour=1),
     }
 }
 
