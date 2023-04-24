@@ -89,7 +89,8 @@ class Mapping(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='mappings',
-        verbose_name=_('User')
+        verbose_name=_('User'),
+        blank=True, null=True
     )
 
     target = models.URLField(verbose_name=_('Target URL'))

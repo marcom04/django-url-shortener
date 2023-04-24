@@ -26,6 +26,20 @@ class CreateMappingSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class CreateGuestMappingSerializer(serializers.ModelSerializer):
+    """Serializer for the anonymous shortener (create mapping) view."""
+    class Meta:
+        model = Mapping
+        fields = ['target', 'key', 'expiry_date']
+        read_only_fields = ['key', 'expiry_date']
+
+    def to_representation(self, instance):
+        """Add full short_url for reading ops."""
+        ret = super().to_representation(instance)
+        ret['short_url'] = f"{self.context.get('request').build_absolute_uri('/')}{instance.key}"
+        return ret
+
+
 class MappingSerializer(serializers.ModelSerializer):
     """Serializer for mapping listing and retrieval."""
     class Meta:

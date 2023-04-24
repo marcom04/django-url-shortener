@@ -18,6 +18,7 @@ logging.disable(logging.CRITICAL)
 
 
 CREATE_MAPPING_URL = reverse('api:mappings:shorten')
+CREATE_GUEST_MAPPING_URL = reverse('api:mappings:guest-shorten')
 KEY_LIST_URL = reverse('api:mappings:key-list')
 # KEY_DETAIL = reverse('api:mappings:key-detail')
 
@@ -32,6 +33,24 @@ class PublicUserApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
+
+    def test_create_guest_mapping_success(self):
+        """Test successful creation of anon (guest) mapping."""
+        payload = {
+            'target': 'https://www.google.com'
+        }
+        res = self.client.post(CREATE_GUEST_MAPPING_URL, payload)
+        in_24_hrs = timezone.now() + timedelta(days=1)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Mapping.objects.count(), 1)
+        mapping = Mapping.objects.first()
+        self.assertEqual(mapping.target, payload['target'])
+        self.assertIsNone(mapping.user)
+        self.assertTrue(mapping.is_active)
+        self.assertAlmostEqual(
+            mapping.expiry_date, in_24_hrs, delta=timedelta(minutes=1)
+        )
 
     def test_create_mapping_unauthorized(self):
         """Test authentication is required to create a mapping."""
@@ -100,3 +119,5 @@ class PrivateUserApiTest(TestCase):
         res = self.client.post(CREATE_MAPPING_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+

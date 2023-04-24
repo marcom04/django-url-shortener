@@ -8,6 +8,7 @@ from django.test.client import Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.core import mail
 
 from apps.core.models import Mapping
 from apps.mappings.tasks import cleanup_mappings
@@ -82,3 +83,40 @@ class MappingViewTests(TestCase):
         self.assertEqual(deleted, 1)
         self.assertEqual(Mapping.objects.count(), 2)
         self.assertFalse(Mapping.objects.filter(id=expired.id).exists())
+
+    def test_cleanup_mappings_email_to_users(self):
+        """Test the notification is sent to users whose expired mappings are deleted."""
+        create_mapping(user=self.user, expiry_date=timezone.now())
+
+        deleted = cleanup_mappings()
+        self.assertEqual(deleted, 1)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [self.user.email])
+        self.assertIn('Expired URLs', mail.outbox[0].subject)
+
+    def test_cleanup_mappings_email_to_users_grouped_by_user(self):
+        """Test the expired notification is sent only once per user."""
+        user2 = create_user(email='test2@example.com', password='testpass123')
+        create_mapping(user=self.user, expiry_date=timezone.now())
+        create_mapping(user=self.user, expiry_date=timezone.now())
+        create_mapping(user=user2, expiry_date=timezone.now())
+
+        deleted = cleanup_mappings()
+        self.assertEqual(deleted, 3)
+        self.assertEqual(len(mail.outbox), 2)
+
+    def test_cleanup_guest_mappings(self):
+        """Test the cleanup mappings task deletes expired guest mappings."""
+        create_mapping(user=None, expiry_date=timezone.now())
+
+        deleted = cleanup_mappings()
+        self.assertEqual(deleted, 1)
+        self.assertEqual(Mapping.objects.count(), 0)
+
+    def test_cleanup_guest_mappings_no_email_notification(self):
+        """Test the expired notification is not sent when deleting guest mappings."""
+        create_mapping(user=None, expiry_date=timezone.now())
+
+        deleted = cleanup_mappings()
+        self.assertEqual(deleted, 1)
+        self.assertEqual(len(mail.outbox), 0)

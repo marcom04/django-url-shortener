@@ -1,10 +1,13 @@
 import logging
+from datetime import timedelta
 
+from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
 
 from api.mappings.serializers import (
     CreateMappingSerializer,
+    CreateGuestMappingSerializer,
     MappingSerializer,
 )
 from apps.core.models import Mapping
@@ -21,6 +24,16 @@ class ShortenURLApiView(CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class GuestShortenURLApiView(CreateAPIView):
+    """
+    Shorten a given URL anonymously (login not required). The mapping automatically expires after 24 hours.
+    """
+    serializer_class = CreateGuestMappingSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(expiry_date=timezone.now() + timedelta(days=1))
 
 
 class RetrieveMappingApiView(RetrieveAPIView):
