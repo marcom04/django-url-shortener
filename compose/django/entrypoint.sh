@@ -14,8 +14,4 @@ do
 done
 printf "Database available!\n"
 
-python manage.py makemigrations
-python manage.py migrate
-python manage.py ensure_superuser --email="$DJANGO_SUPERUSER_EMAIL" --password="$DJANGO_SUPERUSER_PASS"
-
 exec "$@"

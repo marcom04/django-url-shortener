@@ -8,7 +8,10 @@ services:
       dockerfile: ./compose/django/Dockerfile
     image: urlcut_web:latest
     container_name: urlcut-web
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "python manage.py migrate
+             python manage.py ensure_superuser --email="admin@example.com" --password="testpass123"
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./urlcut:/home/django/app   # bind mount for development
     ports:
@@ -17,6 +20,7 @@ services:
       - ./compose/django/.env
     depends_on:
       - db
+      - rabbitmq
 
   db:
     image: postgres:14-alpine
