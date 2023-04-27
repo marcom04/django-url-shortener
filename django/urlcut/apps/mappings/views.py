@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import RedirectView
 
-from apps.core.models import Mapping
+from apps.mappings.models import Mapping
 
 app_log = logging.getLogger('urlcut.apps.mappings')
 

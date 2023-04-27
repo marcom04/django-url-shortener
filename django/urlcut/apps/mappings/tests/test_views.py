@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core import mail
 
-from apps.core.models import Mapping
+from apps.mappings.models import Mapping
 from apps.mappings.tasks import cleanup_mappings
 
 

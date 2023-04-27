@@ -10,7 +10,7 @@ from api.mappings.serializers import (
     CreateGuestMappingSerializer,
     MappingSerializer,
 )
-from apps.core.models import Mapping
+from apps.mappings.models import Mapping
 
 app_log = logging.getLogger('urlcut.apps.api')
 

@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from celery import shared_task
 from celery.utils.log import get_task_logger
 
-from apps.core.models import Mapping
+from apps.mappings.models import Mapping
 
 logger = get_task_logger(__name__)
 

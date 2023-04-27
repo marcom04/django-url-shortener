@@ -18,6 +18,6 @@ urlpatterns = [
     path('schema/', SpectacularAPIView.as_view(api_version='v1'), name='schema'),
     path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('mappings/', include('api.mappings.urls')),
-    path('users/', include('api.users.urls')),
+    path('mappings/', include('api.mappings.urls', namespace='mappings')),
+    path('users/', include('api.users.urls', namespace='users')),
 ]

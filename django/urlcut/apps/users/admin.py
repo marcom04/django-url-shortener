@@ -1,11 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import (
-    Mapping,
-    User,
-)
+User = get_user_model()
 
 
 @admin.register(User)
@@ -38,8 +36,3 @@ class UserAdmin(BaseUserAdmin):
             )
         }),
     )
-
-
-@admin.register(Mapping)
-class MappingAdmin(admin.ModelAdmin):
-    list_display = ['key', 'target']
