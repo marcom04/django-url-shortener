@@ -32,7 +32,7 @@ RUN /py/bin/pip install wheel && \
     rm /tmp/requirements.txt
 
 # copy and configure scripts
-COPY --chown=django:django ./compose/django/entrypoint.sh /home/django/scripts/entrypoint.sh
+COPY --chown=django:django ./compose/entrypoint.sh /home/django/scripts/entrypoint.sh
 RUN sed -i 's/\r$//g' /home/django/scripts/entrypoint.sh && \
     chmod -R +x /home/django/scripts
 

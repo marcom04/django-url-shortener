@@ -2,22 +2,22 @@ version: '3'
 
 services:
 
-  web:
+  backend:
     build:
-      context: .
-      dockerfile: ./compose/django/Dockerfile
-    image: urlcut_web:latest
-    container_name: urlcut-web
+      context: ./django
+      dockerfile: ./compose/Dockerfile
+    image: urlcut_backend:latest
+    container_name: urlcut-backend
     command: >
       sh -c "python manage.py migrate
              python manage.py ensure_superuser --email="admin@example.com" --password="testpass123"
              python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./urlcut:/home/django/app   # bind mount for development
+      - ./django/urlcut:/home/django/app   # bind mount for development
     ports:
       - "8000:8000"
     env_file:
-      - ./compose/django/.env
+      - ./django/compose/django.env
     depends_on:
       - db
       - rabbitmq
@@ -40,27 +40,33 @@ services:
     restart: always
 
   worker:
-    image: urlcut_web:latest
+    build:
+      context: ./django
+      dockerfile: ./compose/Dockerfile
+    image: urlcut_backend:latest
     container_name: urlcut-worker
     command: celery -A urlcut worker -l INFO
     volumes:
-      - ./urlcut:/home/django/app
+      - ./django/urlcut:/home/django/app
     env_file:
-      - ./compose/django/.env
+      - ./django/compose/django.env
     depends_on:
-      - web
+      - backend
       - rabbitmq
 
   scheduler:
-    image: urlcut_web:latest
+    build:
+      context: ./django
+      dockerfile: ./compose/Dockerfile
+    image: urlcut_backend:latest
     container_name: urlcut-scheduler
     command: celery -A urlcut beat -l INFO
     volumes:
-      - ./urlcut:/home/django/app
+      - ./django/urlcut:/home/django/app
     env_file:
-      - ./compose/django/.env
+      - ./django/compose/django.env
     depends_on:
-      - web
+      - backend
       - rabbitmq
 
 volumes:
