@@ -9,15 +9,11 @@ from apps.mappings.models import Mapping
 logger = get_task_logger(__name__)
 
 
-@shared_task
-def say_hi():
-    logger.info('hi')
-
-
 @shared_task(time_limit=120)
 def cleanup_mappings():
     """
-    Look for expired mappings, delete them and notify the owners via e-mail.
+    Look for expired mappings and delete them.
+    For mappings related to users, notify the owners via e-mail.
     """
     all_expired = Mapping.objects.select_related('user').expired()
     users = all_expired.values('user_id', 'user__email', 'user__name').distinct()
@@ -30,7 +26,7 @@ def cleanup_mappings():
                 'mappings': expired_for_user
             }
         )
-        send_mail(
+        send_mail(  # TODO: catch send mail exceptions!
             '[urlcut] Expired URLs',
             msg_plain,
             'noreply@urlcut.com',

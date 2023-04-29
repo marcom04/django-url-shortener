@@ -9,7 +9,7 @@ app_log = logging.getLogger('urlcut.apps.mappings')
 
 
 class ForwardToTargetView(RedirectView):
-    """Given a Mapping key, redirect the user to the related target URL."""
+    """Redirect the user from short URL to the related target URL."""
 
     def get_redirect_url(self, *args, **kwargs):
         key = kwargs.get('key')

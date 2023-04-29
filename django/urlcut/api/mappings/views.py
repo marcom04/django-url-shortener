@@ -3,7 +3,11 @@ from datetime import timedelta
 
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    RetrieveAPIView,
+    ListAPIView,
+)
 
 from api.mappings.serializers import (
     CreateMappingSerializer,

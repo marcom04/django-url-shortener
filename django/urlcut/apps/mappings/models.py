@@ -12,11 +12,17 @@ from django.utils import timezone
 
 
 def create_random_key(length=settings.DEFAULT_KEY_LEN):
+    """
+    Generate a random alphanumeric string of specified length, default to settings.DEFAULT_KEY_LEN.
+    """
     chars = string.ascii_letters + string.digits
     return ''.join(secrets.choice(chars) for _ in range(length))
 
 
 def create_unique_random_key(length=settings.DEFAULT_KEY_LEN):
+    """
+    Generate a random string of specified length, making sure it does not already exist among Mappings' keys.
+    """
     new_key = create_random_key(length)
     while Mapping.objects.filter(key=new_key).exists():
         new_key = create_random_key(length)
@@ -77,6 +83,6 @@ class Mapping(models.Model):
         super().save(*args, **kwargs)
 
     def increment_visits(self):
-        # increment visits field using F() to avoid race conditions
+        # increment visits field using F() to avoid race conditions - the update is done at DB
         self.visits = F('visits') + 1
         self.save()
