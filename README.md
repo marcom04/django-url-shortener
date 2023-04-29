@@ -10,6 +10,9 @@ It is possible to use the service both anonymously or as a logged user:
   * list of active shortened URLs created with related statistics,
   * e-mail notification when a shortened URL expires.
 
+It includes also a ***very*** basic ReactJS frontend, that can be used only to request a 
+shortened URL anonymously.
+
 ## Development setup
 
 ### Prerequisites
@@ -23,7 +26,7 @@ It is possible to use the service both anonymously or as a logged user:
 docker compose up --build
 ```
 
-### Run tests
+### Run Django tests
 
 ```
 docker exec -it urlcut-backend python manage.py test
@@ -41,6 +44,7 @@ See the full API documentation at `http://localhost:8000/api/v1/doc/`.
 * Celery
 * PostgreSQL
 * RabbitMQ
+* ReactJS
 
 ## Docker containerization
 
@@ -51,6 +55,7 @@ The URL shortener is composed by the following Docker containers:
 * `rabbitmq`: a RabbitMQ broker used by Celery
 * `worker`: runs a Celery worker instance for async tasks execution
 * `scheduler`: runs a Celery beat instance for tasks scheduling
+* `frontend`: proof-of-concept ReactJS frontend
 
 ## Folders structure
 
@@ -72,3 +77,5 @@ django
 │   └── manage.py
 └── requirements.txt
 ```
+
+The `react` folder contains the ReactJS frontend.

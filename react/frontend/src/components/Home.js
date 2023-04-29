@@ -9,7 +9,7 @@ class Home extends Component {
         return (
             <Container style={{ marginTop: "20px" }}>
                 <Row>
-                    <Col>
+                    <Col lg={{ span:6, offset:3 }}>
                         <ShortenForm />
                     </Col>
                 </Row>
