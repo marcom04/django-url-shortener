@@ -16,25 +16,34 @@ def cleanup_mappings():
     For mappings related to users, notify the owners via e-mail.
     """
     all_expired = Mapping.objects.select_related('user').expired()
+    # get distinct users for the expired mappings
     users = all_expired.values('user_id', 'user__email', 'user__name').distinct()
-    for user in users.all():
-        expired_for_user = all_expired.filter(user_id=user['user_id']).values('key', 'target', 'visits')
+    for user in users:
+        # save user's mapping data into the users dict before deleting the queryset
+        user['mappings'] = all_expired.filter(user_id=user['user_id']).values('key', 'target', 'visits')
+
+    count, _ = all_expired.delete()
+    logger.info(f"Deleted {count} expired mappings.")
+
+    # send e-mail notifications
+    for user in users:
         msg_plain = render_to_string(
             'email/expired_mappings.txt',
             {
                 'name': user['user__name'],
-                'mappings': expired_for_user
+                'mappings': user['mappings']
             }
         )
-        send_mail(  # TODO: catch send mail exceptions!
-            '[urlcut] Expired URLs',
-            msg_plain,
-            'noreply@urlcut.com',
-            [user['user__email']],
-            fail_silently=False
-        )
+        try:
+            send_mail(
+                '[urlcut] Expired URLs',
+                msg_plain,
+                'noreply@urlcut.com',
+                [user['user__email']],
+                fail_silently=False
+            )
+        except IOError as e:
+            logger.error(f'cleanup_mappings - Error sending e-mail: {e}')
 
-    count, _ = all_expired.delete()
-    logger.info(f"Deleted {count} expired mappings.")
     return count
 

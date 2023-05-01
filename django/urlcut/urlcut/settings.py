@@ -205,8 +205,8 @@ CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672'
 CELERY_BEAT_SCHEDULE = {
     'cleanup-expired-mappings': {
         'task': 'apps.mappings.tasks.cleanup_mappings',
-        # 'schedule': crontab(minute=0, hour=1),
-        'schedule': 60.0,
+        'schedule': crontab(minute=0, hour=1),
+        # 'schedule': 120.0,      # for development, cleanup every x seconds
     }
 }
 

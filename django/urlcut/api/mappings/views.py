@@ -10,10 +10,9 @@ from rest_framework.generics import (
 )
 
 from api.mappings.serializers import (
-    CreateMappingSerializer,
-    CreateGuestMappingSerializer,
-    MappingSerializer,
     BaseCreateMappingSerializer,
+    CreateMappingSerializer,
+    MappingSerializer,
 )
 from apps.mappings.models import Mapping
 
@@ -62,4 +61,4 @@ class ListMappingsApiView(ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Mapping.objects.filter(user=self.request.user)
+        return Mapping.objects.filter(user=self.request.user).order_by('id')

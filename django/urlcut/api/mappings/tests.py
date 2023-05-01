@@ -28,6 +28,18 @@ def create_user(**params):
     return get_user_model().objects.create_user(**params)
 
 
+def create_mapping(user, **params):
+    """Create and return a test mapping."""
+    defaults = {
+        'target': 'https://www.google.com',
+        'expiry_date': None,
+    }
+    defaults.update(params)
+
+    mapping = Mapping.objects.create(user=user, **defaults)
+    return mapping
+
+
 class PublicUserApiTests(TestCase):
     """Test the public features of the mappings API."""
 
@@ -35,7 +47,7 @@ class PublicUserApiTests(TestCase):
         self.client = APIClient()
 
     def test_create_guest_mapping_success(self):
-        """Test successful creation of anon (guest) mapping."""
+        """Test successful creation of anonymous (guest) mapping."""
         payload = {
             'target': 'https://www.google.com'
         }
@@ -43,6 +55,9 @@ class PublicUserApiTests(TestCase):
         in_24_hrs = timezone.now() + timedelta(days=1)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertIn('key', res.data)
+        self.assertIn('short_url', res.data)
+        self.assertTrue(len(res.data['short_url'].strip()) > 0)
         self.assertEqual(Mapping.objects.count(), 1)
         mapping = Mapping.objects.first()
         self.assertEqual(mapping.target, payload['target'])
@@ -53,9 +68,14 @@ class PublicUserApiTests(TestCase):
         )
 
     def test_create_mapping_unauthorized(self):
-        """Test authentication is required to create a mapping."""
+        """Test authentication is required to create a mapping with full functionalities."""
         res = self.client.post(CREATE_MAPPING_URL)
 
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_list_of_mappings_unauthorized(self):
+        """Test authentication is required to get the list of mappings."""
+        res = self.client.get(KEY_LIST_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -79,6 +99,9 @@ class PrivateUserApiTest(TestCase):
         res = self.client.post(CREATE_MAPPING_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertIn('key', res.data)
+        self.assertIn('short_url', res.data)
+        self.assertTrue(len(res.data['short_url'].strip()) > 0)
         self.assertEqual(Mapping.objects.count(), 1)
         mapping = Mapping.objects.first()
         self.assertEqual(mapping.target, payload['target'])
@@ -120,4 +143,12 @@ class PrivateUserApiTest(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_get_list_of_mappings(self):
+        """Test getting the list of mappings for the authenticated user."""
+        create_mapping(self.user)
+        create_mapping(self.user)
 
+        res = self.client.get(KEY_LIST_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('count', res.data)
+        self.assertEqual(res.data['count'], 2)
