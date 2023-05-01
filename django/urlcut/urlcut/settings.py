@@ -128,10 +128,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'static'
-]
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -209,7 +205,8 @@ CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672'
 CELERY_BEAT_SCHEDULE = {
     'cleanup-expired-mappings': {
         'task': 'apps.mappings.tasks.cleanup_mappings',
-        'schedule': crontab(minute=0, hour=1),
+        # 'schedule': crontab(minute=0, hour=1),
+        'schedule': 60.0,
     }
 }
 

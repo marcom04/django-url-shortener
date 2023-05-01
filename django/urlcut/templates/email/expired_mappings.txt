@@ -1,7 +1,6 @@
 Hi {{ name|default:'User' }},
 
-We have deleted the following {{ mappings.count }} expired URLs created by you:
-
+We have deleted the following {{ mappings.count }} expired URL{{ mappings.count|pluralize:",s" }} created by you:
 {% for mapping in mappings %}
 - Key '{{ mapping.key }}' for URL {{ mapping.target }}. Clicks collected: {{ mapping.visits }}
 {% endfor %}

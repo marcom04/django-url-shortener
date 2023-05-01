@@ -10,9 +10,9 @@ User = get_user_model()
 class UserAdmin(BaseUserAdmin):
     """Define the admin pages for users."""
     ordering = ['id']
-    list_display = ['email', 'name', 'is_active', 'is_staff']
+    list_display = ['id', 'email', 'name', 'is_active', 'is_staff']
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
+        (None, {'fields': ('email', 'password', 'name')}),
         (
             _('Permissions'),
             {

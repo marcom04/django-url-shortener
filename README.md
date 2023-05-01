@@ -36,8 +36,21 @@ docker exec -it urlcut-backend python manage.py test
 
 ### Usage
 
-The API is available under `http://localhost:8000/api/v1/`.
-See the full API documentation at `http://localhost:8000/api/v1/doc/`.
+* The API is available under `http://localhost:8000/api/v1/`
+  * See the full API documentation at `http://localhost:8000/api/v1/doc/`
+* The Django administration site is available at `http://localhost:8000/admin`
+  * A sample admin user is always available with credentials `admin@example.com` / `testpass123`
+* The ReactJS frontend is available at `http://localhost:3000`
+
+### Users fixtures
+
+For test purposes, it is possible to load a couple of sample users from a fixture:
+```
+docker exec -it urlcut-backend python manage.py loaddata apps/users/fixtures/users.json
+```
+
+The sample users will have e-mails `user1@example.com`, `user2@example.com`, and password `testpass123`.
+
 
 ## Tech stack
 
