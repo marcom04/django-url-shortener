@@ -58,6 +58,11 @@ class MappingViewTests(TestCase):
         mapping.refresh_from_db(fields=['visits'])
         self.assertEqual(mapping.visits, 1)
 
+    def test_forward_to_non_existing_target(self):
+        """Test that visiting an non-existing mapping does not work."""
+        res = self.client.get(forward_target_url('asdfasdf'))
+        self.assertEqual(res.status_code, 404)
+
     def test_forward_to_expired_target(self):
         """Test that visiting an expired mapping does not work."""
         mapping = create_mapping(self.user, expiry_date=timezone.now())

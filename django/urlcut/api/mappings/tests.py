@@ -20,7 +20,10 @@ logging.disable(logging.CRITICAL)
 CREATE_MAPPING_URL = reverse('api:mappings:shorten')
 CREATE_GUEST_MAPPING_URL = reverse('api:mappings:guest-shorten')
 KEY_LIST_URL = reverse('api:mappings:key-list')
-# KEY_DETAIL = reverse('api:mappings:key-detail')
+
+
+def key_detail_url(key):
+    return reverse('api:mappings:key-detail', kwargs={'key': key})
 
 
 def create_user(**params):
@@ -152,3 +155,43 @@ class PrivateUserApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('count', res.data)
         self.assertEqual(res.data['count'], 2)
+
+    def test_get_list_of_mapping_limited_to_user(self):
+        """Test that the list of mappings contains only mappings of the authenticated user."""
+        user2 = create_user(
+            email='test2@example.com',
+            password='testpass123',
+            name='Test Name 2',
+        )
+        create_mapping(self.user)
+        create_mapping(self.user)
+        create_mapping(user2)
+
+        res = self.client.get(KEY_LIST_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['count'], 2)
+
+    def test_get_mapping_detail(self):
+        """Test getting the detail of a mapping of the authenticated user."""
+        m = create_mapping(self.user)
+
+        res = self.client.get(key_detail_url(m.key))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(m.key, res.data['key'])
+
+    def test_get_mapping_detail_non_existing(self):
+        """Test getting the detail of a non-existing key returns error."""
+        res = self.client.get(key_detail_url('asdfasdf'))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_mapping_detail_of_other_user(self):
+        """Test getting the detail of a mapping belonging to another user returns error."""
+        user2 = create_user(
+            email='test2@example.com',
+            password='testpass123',
+            name='Test Name 2',
+        )
+        m = create_mapping(user2)
+
+        res = self.client.get(key_detail_url(m.key))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)

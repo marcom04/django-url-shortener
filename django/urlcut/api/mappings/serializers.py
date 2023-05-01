@@ -34,28 +34,13 @@ class CreateMappingSerializer(BaseCreateMappingSerializer):
         return attrs
 
 
-class CreateGuestMappingSerializer(serializers.ModelSerializer):
-    """Serializer for the anonymous shortener (create mapping) view."""
-    class Meta:
-        model = Mapping
-        fields = ['target', 'key', 'expiry_date']
-        read_only_fields = ['key', 'expiry_date']
-
-    def to_representation(self, instance):
-        """Add full short_url for reading ops."""
-        ret = super().to_representation(instance)
-        ret['short_url'] = f"{self.context.get('request').build_absolute_uri('/')}{instance.key}"
-        return ret
-
-
 class MappingSerializer(serializers.ModelSerializer):
     """Serializer for mapping listing and retrieval."""
+    is_active = serializers.SerializerMethodField()
+
     class Meta:
         model = Mapping
-        fields = ['target', 'key', 'expiry_date', 'visits']
+        fields = ['target', 'key', 'expiry_date', 'visits', 'is_active']
 
-    def to_representation(self, instance):
-        """Add is_active flag for reading ops."""
-        ret = super().to_representation(instance)
-        ret['is_active'] = instance.is_active
-        return ret
+    def get_is_active(self, obj) -> bool:
+        return obj.is_active
