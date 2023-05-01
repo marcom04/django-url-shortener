@@ -40,12 +40,14 @@ class ShortenForm extends React.Component {
     createMapping = e => {
         e.preventDefault();
         axios.post(GUEST_SHORTEN_API_URL, {target: this.state.target}).then(response => {
-           this.setState({
+            this.setState({
                short_url: response.data.short_url,
                expiry_date: new Date(response.data.expiry_date),
                shorten_disabled: true,
                short_url_hidden: false
            });
+        }).catch(err => {
+            console.log(err);
         });
     };
 

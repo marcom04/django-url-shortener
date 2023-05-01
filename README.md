@@ -1,7 +1,7 @@
 # URL Shortener
 Simple URL shortening service based on Django and Django REST Framework.
 
-It allows to create a short URL that redirects to a specified (possibly long) target URL.
+It provides a REST API which allows to create a short URL that redirects to a specified (possibly longer) target URL.
 
 It is possible to use the service both anonymously or as a logged user:
 * anonymously: the shortened URL will be valid for 24 hours. After that, the link won't work anymore.
@@ -9,6 +9,8 @@ It is possible to use the service both anonymously or as a logged user:
   * customization of the expiration date (or no expiration date),
   * list of active shortened URLs created with related statistics,
   * e-mail notification when a shortened URL expires.
+
+A Celery task, periodically scheduled, looks for expired mappings between short and long URLs and deletes them. 
 
 It includes also a ***very*** basic ReactJS frontend, that can be used only to request a 
 shortened URL anonymously.
