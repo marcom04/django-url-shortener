@@ -13,6 +13,7 @@ from api.mappings.serializers import (
     CreateMappingSerializer,
     CreateGuestMappingSerializer,
     MappingSerializer,
+    BaseCreateMappingSerializer,
 )
 from apps.mappings.models import Mapping
 
@@ -34,7 +35,7 @@ class GuestShortenURLApiView(CreateAPIView):
     """
     Shorten a given URL anonymously (login not required). The mapping automatically expires after 24 hours.
     """
-    serializer_class = CreateGuestMappingSerializer
+    serializer_class = BaseCreateMappingSerializer
 
     def perform_create(self, serializer):
         serializer.save(expiry_date=timezone.now() + timedelta(days=1))
