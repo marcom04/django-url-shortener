@@ -7,7 +7,7 @@ It is possible to use the service both anonymously or as a logged user:
 * anonymously: the shortened URL will be valid for 24 hours. After that, the link won't work anymore.
 * as a logged user: more features are available, such as:
   * customization of the expiration date (or no expiration date),
-  * list of active shortened URLs created with related statistics,
+  * list of active shortened URLs created with related statistics (number of visits),
   * e-mail notification when a shortened URL expires.
 
 A Celery task, periodically scheduled, looks for expired mappings between short and long URLs and deletes them. 
