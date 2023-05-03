@@ -135,7 +135,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
-DEFAULT_KEY_LEN = 8
+DEFAULT_KEY_LEN = 7
 
 # Logging
 
